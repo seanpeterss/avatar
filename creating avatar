@@ -1,42 +1,61 @@
-import pygame
-import sys
-import random
-
-# Initialize Pygame
-pygame.init()
+import tkinter as tk
+from tkinter import ttk
+from PIL import Image, ImageDraw
 
 # Constants
-WIDTH, HEIGHT = 300, 300
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-RED = (255, 0, 0)
+WIDTH, HEIGHT = 200, 200
 
-# Create the avatar window
-screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Simple Avatar Generator")
+# Function to draw the avatar based on user choices
+def draw_avatar():
+    # Get user choices
+    head_color = '#' + ''.join(f'{int(c):02x}' for c in head_color_picker.get())
+    eye_color = '#' + ''.join(f'{int(c):02x}' for c in eye_color_picker.get())
+    mouth_shape = int(mouth_shape_slider.get()) / 100
 
-# Game loop
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-
-    # Drawing
-    screen.fill(WHITE)
+    # Create a new image
+    image = Image.new("RGB", (WIDTH, HEIGHT), "white")
+    draw = ImageDraw.Draw(image)
 
     # Draw head
-    pygame.draw.circle(screen, BLACK, (WIDTH // 2, HEIGHT // 2), 50)
+    draw.ellipse([50, 50, 150, 150], fill=head_color, outline="black")
 
     # Draw eyes
-    pygame.draw.circle(screen, RED, (WIDTH // 2 - 20, HEIGHT // 2 - 20), 10)
-    pygame.draw.circle(screen, RED, (WIDTH // 2 + 20, HEIGHT // 2 - 20), 10)
+    draw.ellipse([75, 75, 90, 90], fill=eye_color)
+    draw.ellipse([110, 75, 125, 90], fill=eye_color)
 
     # Draw mouth
-    pygame.draw.arc(screen, BLACK, (WIDTH // 2 - 20, HEIGHT // 2 + 10, 40, 20), 0, 3.14, 2)
+    draw.arc([75, 110, 125, 125], start=0, end=180, fill="black", width=2)
 
-    pygame.display.flip()
+    # Display the image
+    image.show()
 
-# Quit the avatar generator
-pygame.quit()
-sys.exit()
+# Create main window
+root = tk.Tk()
+root.title("Avatar Generator")
+
+# Head Color Picker
+head_color_label = ttk.Label(root, text="Head Color:")
+head_color_label.grid(row=0, column=0, padx=5, pady=5)
+head_color_picker = tk.Scale(root, from_=0, to=255, orient="horizontal", length=200)
+head_color_picker.set(127)  # Default to gray
+head_color_picker.grid(row=0, column=1, padx=5, pady=5)
+
+# Eye Color Picker
+eye_color_label = ttk.Label(root, text="Eye Color:")
+eye_color_label.grid(row=1, column=0, padx=5, pady=5)
+eye_color_picker = tk.Scale(root, from_=0, to=255, orient="horizontal", length=200)
+eye_color_picker.set(255)  # Default to white
+eye_color_picker.grid(row=1, column=1, padx=5, pady=5)
+
+# Mouth Shape Slider
+mouth_shape_label = ttk.Label(root, text="Mouth Shape:")
+mouth_shape_label.grid(row=2, column=0, padx=5, pady=5)
+mouth_shape_slider = tk.Scale(root, from_=0, to=100, orient="horizontal", length=200)
+mouth_shape_slider.set(50)  # Default to half-open
+mouth_shape_slider.grid(row=2, column=1, padx=5, pady=5)
+
+# Generate Button
+generate_button = ttk.Button(root, text="Generate Avatar", command=draw_avatar)
+generate_button.grid(row=3, columnspan=2, padx=5, pady=5)
+
+root.mainloop()
